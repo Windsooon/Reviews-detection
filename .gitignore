@@ -83,6 +83,8 @@ celerybeat-schedule
 
 # Environments
 .env
+*.csv
+*.DS_Store
 .venv
 env/
 venv/
