@@ -1,5 +1,13 @@
+import os
 import csv
 import logging
+import numpy as np
+
+from sklearn.feature_extraction.text import CountVectorizer
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+DATA_DIR = os.path.join(BASE_DIR, 'cleaned_data')
 
 def write_csv(csv_file, rows):
     '''
@@ -14,7 +22,7 @@ def write_csv(csv_file, rows):
                 quoting=csv.QUOTE_MINIMAL)
         writer.writerows(rows)
 
-def get_current_logger(name, filename, filelevel):
+def get_current_logger(name, filename, filelevel=logging.WARNING):
     '''
     Return a logger object base on input settings
 
@@ -32,3 +40,15 @@ def get_current_logger(name, filename, filelevel):
     logger.addHandler(ch)
     logger.addHandler(fh)
     return logger
+
+def jaccard_similarity(s1, s2):
+    def add_space(s):
+        return ' '.join(list(s))
+
+    s1, s2 = add_space(s1), add_space(s2)
+    cv = CountVectorizer(tokenizer=lambda s: s.split())
+    corpus = [s1, s2]
+    vectors = cv.fit_transform(corpus).toarray()
+    numerator = np.sum(np.min(vectors, axis=0))
+    denominator = np.sum(np.max(vectors, axis=0))
+    return numerator / denominator
