@@ -20,11 +20,11 @@ kf = KFold(n_splits=10, random_state=42, shuffle=True)
 accuracies, precisions, recalls, f1s = [], [], [], []
 
 for train_index, test_index in kf.split(X):
-    X_train   = X[train_index]
+    X_train = X[train_index]
     y_train = y[train_index]
 
-    X_test    = X[test_index]
-    y_test  = y[test_index]
+    X_test = X[test_index]
+    y_test = y[test_index]
 
     vectorizer = sklearn.feature_extraction.text.CountVectorizer(
         tokenizer=cut_words,
@@ -35,10 +35,14 @@ for train_index, test_index in kf.split(X):
     naive_bayes = MultinomialNB()
     naive_bayes.fit(training_data, y_train)
     preds = naive_bayes.predict(testing_data)
-    accuracies.append(accuracy_score(y_test, preds))
-    precisions.append(precision_score(y_test, preds))
-    recalls.append(recall_score(y_test, preds))
-    f1s.append(f1_score(y_test, preds))
+    len_comments = X_test.str.len()
+    bool_comments = [True if x >= 10 and x <= 465 else False for x in len_comments]
+    hybrid_preds = np.where(bool_comments, preds, np.zeros(len(preds)))
+
+    accuracies.append(accuracy_score(y_test, hybrid_preds))
+    precisions.append(precision_score(y_test, hybrid_preds))
+    recalls.append(recall_score(y_test, hybrid_preds))
+    f1s.append(f1_score(y_test, hybrid_preds))
 
 average_accuracy = np.mean(accuracies)
 average_precision = np.mean(precisions)
